@@ -4,10 +4,10 @@
 type ButtonAction = 'insert' | 'update' | 'delete' | 'search';
 
 interface ButtonProps {
-    action: ButtonAction;      // Thay 'variant' bằng 'action' để mang tính nghiệp vụ hơn
-    label?: string;            // Có thể truyền label riêng, nếu không sẽ dùng mặc định
+    action: ButtonAction;
+    label?: string;
     onClick?: () => void;
-    disabled?: boolean;        // Thêm trạng thái disabled khi đang xử lý
+    disabled?: boolean;
 }
 
 export default function MyButton({ action, label, onClick, disabled }: ButtonProps) {
@@ -17,22 +17,22 @@ export default function MyButton({ action, label, onClick, disabled }: ButtonPro
         insert: {
             defaultLabel: 'Thêm mới',
             icon: '➕',
-            styles: 'bg-green-600 hover:bg-green-700 text-white',
+            styles: 'bg-emerald-600 hover:bg-emerald-700 text-white focus:ring-emerald-500',
         },
         update: {
             defaultLabel: 'Cập nhật',
             icon: '📝',
-            styles: 'bg-blue-500 hover:bg-blue-600 text-white',
+            styles: 'bg-indigo-500 hover:bg-indigo-600 text-white focus:ring-indigo-500',
         },
         delete: {
             defaultLabel: 'Xóa',
             icon: '🗑️',
-            styles: 'bg-red-500 hover:bg-red-600 text-white',
+            styles: 'bg-rose-500 hover:bg-rose-600 text-white focus:ring-rose-500',
         },
         search: {
             defaultLabel: 'Tìm kiếm',
             icon: '🔍',
-            styles: 'bg-gray-700 hover:bg-gray-800 text-white',
+            styles: 'bg-slate-800 hover:bg-slate-900 text-white focus:ring-slate-800',
         },
     };
 
@@ -42,12 +42,12 @@ export default function MyButton({ action, label, onClick, disabled }: ButtonPro
         <button
             onClick={onClick}
             disabled={disabled}
-            className={`px-4 py-2 rounded-lg transition-all font-medium flex items-center gap-2 shadow-sm 
+            className={`px-4 py-2.5 rounded-xl transition-all font-medium flex items-center justify-center gap-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2
                 ${current.styles} 
                 ${disabled ? 'opacity-50 cursor-not-allowed' : 'active:scale-95'}`}
         >
-            <span>{current.icon}</span>
-            {label || current.defaultLabel}
+            <span className="text-sm">{current.icon}</span>
+            <span>{label || current.defaultLabel}</span>
         </button>
     );
-}
+}
