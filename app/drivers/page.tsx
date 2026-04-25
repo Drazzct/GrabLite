@@ -27,6 +27,7 @@ export default function DriverDashboard() {
     }
   }, [isSignedIn, user]);
 
+  // Check if user is logged in and is a driver
   if (!isSignedIn || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -35,6 +36,27 @@ export default function DriverDashboard() {
           <Link href="/auth/signin">
             <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
               Quay lại đăng nhập
+            </button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if user is a driver
+  if (user.userType !== "Driver") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">
+            Bạn không có quyền truy cập trang này
+          </p>
+          <p className="text-gray-500 text-sm mb-6">
+            Trang này chỉ dành cho tài xế
+          </p>
+          <Link href="/">
+            <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+              Quay lại trang chủ
             </button>
           </Link>
         </div>

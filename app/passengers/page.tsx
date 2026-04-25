@@ -7,7 +7,45 @@ import { useAuth } from "@/context/AuthContext";
 import EmergencySection from "@/components/EmergencySection";
 
 export default function PassengerDashboard() {
-  const { user } = useAuth();
+  const { user, isSignedIn } = useAuth();
+
+  // Check if user is logged in
+  if (!isSignedIn || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Vui lòng đăng nhập</p>
+          <Link href="/auth/signin">
+            <button className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+              Quay lại đăng nhập
+            </button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if user is a passenger
+  if (user.userType !== "Passenger") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">
+            Bạn không có quyền truy cập trang này
+          </p>
+          <p className="text-gray-500 text-sm mb-6">
+            Trang này chỉ dành cho hành khách
+          </p>
+          <Link href="/">
+            <button className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+              Quay lại trang chủ
+            </button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const userName = user?.name || "Khách hàng";
 
   return (

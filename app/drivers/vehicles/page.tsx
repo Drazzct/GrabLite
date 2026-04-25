@@ -2,17 +2,55 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { Plus, Car } from "lucide-react";
+import Link from "next/link";
 import Header from "@/components/Header";
 import { useAuth } from "@/context/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function VehiclePage() {
-  const { user } = useAuth();
+  const { user, isSignedIn } = useAuth();
   const [vehicles, setVehicles] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const driverId = user?.id || 8;
+
+  // Check if user is logged in and is a driver
+  if (!isSignedIn || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Vui lòng đăng nhập</p>
+          <Link href="/auth/signin">
+            <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+              Quay lại đăng nhập
+            </button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if user is a driver
+  if (user.userType !== "Driver") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">
+            Bạn không có quyền truy cập trang này
+          </p>
+          <p className="text-gray-500 text-sm mb-6">
+            Trang này chỉ dành cho tài xế
+          </p>
+          <Link href="/">
+            <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+              Quay lại trang chủ
+            </button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   // State cho Form thêm xe
   const [formData, setFormData] = useState({
@@ -346,8 +384,8 @@ export default function VehiclePage() {
 
       {/* Add Vehicle Modal */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-lg animate-in fade-in slide-in-from-bottom-4 duration-300">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
               <h2 className="text-lg font-bold text-gray-900">
                 Đăng ký xe mới
@@ -465,42 +503,42 @@ export default function VehiclePage() {
                       id: "1",
                       label: "Xe máy",
                       sub: "Standard",
-                      icon: "🛵",
+                      image: "/vehicles/bike.png",
                       capacity: 1,
                     },
                     {
                       id: "2",
                       label: "Xe máy",
                       sub: "Tiết kiệm",
-                      icon: "🛵",
+                      image: "/vehicles/bike_saver.png",
                       capacity: 1,
                     },
                     {
                       id: "3",
                       label: "Xe hơi 4 chỗ",
                       sub: "Standard",
-                      icon: "🚗",
+                      image: "/vehicles/car4.png",
                       capacity: 4,
                     },
                     {
                       id: "4",
                       label: "Xe hơi 4 chỗ",
                       sub: "Tiết kiệm",
-                      icon: "🚗",
+                      image: "/vehicles/car4_saver.png",
                       capacity: 4,
                     },
                     {
                       id: "5",
                       label: "Xe hơi 4 chỗ",
                       sub: "Electric",
-                      icon: "⚡",
+                      image: "/vehicles/car_electric.png",
                       capacity: 4,
                     },
                     {
                       id: "6",
                       label: "Xe hơi 6 chỗ",
                       sub: "Standard",
-                      icon: "🚐",
+                      image: "/vehicles/car6.png",
                       capacity: 6,
                     },
                   ].map((mode) => {
@@ -550,28 +588,27 @@ export default function VehiclePage() {
                         key={mode.id}
                         type="button"
                         onClick={toggleMode}
-                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border-2 text-left transition-all ${
+                        className={`flex flex-col items-center gap-1 px-3 py-3 rounded-lg border-2 transition-all ${
                           selected
-                            ? "border-blue-500 bg-blue-50 text-blue-700"
-                            : "border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300 hover:bg-gray-100"
+                            ? "border-blue-500 bg-blue-50"
+                            : "border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-gray-100"
                         }`}
                       >
-                        <span className="text-xl">{mode.icon}</span>
-                        <div>
-                          <div className="text-sm font-semibold leading-tight">
+                        <img
+                          src={mode.image}
+                          alt={mode.label}
+                          className="h-10 object-contain"
+                        />
+                        <div className="text-center">
+                          <div className="text-sm font-semibold leading-tight text-gray-900">
                             {mode.label}
                           </div>
                           <div
-                            className={`text-xs ${selected ? "text-blue-500" : "text-gray-400"}`}
+                            className={`text-xs ${selected ? "text-blue-600" : "text-gray-500"}`}
                           >
                             {mode.sub}
                           </div>
                         </div>
-                        {selected && (
-                          <span className="ml-auto text-blue-500 text-lg">
-                            ✓
-                          </span>
-                        )}
                       </button>
                     );
                   })}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   MapPin,
   Navigation,
@@ -13,12 +14,50 @@ import Header from "@/components/Header";
 import { useAuth } from "@/context/AuthContext";
 
 export default function BookRidePage() {
+  const { user, isSignedIn } = useAuth();
   const [pickupLocation, setPickupLocation] = useState("");
   const [dropoffLocation, setDropoffLocation] = useState("");
   const [rideType, setRideType] = useState("grabx");
   const [estimatedPrice, setEstimatedPrice] = useState(45000);
   const [estimatedTime, setEstimatedTime] = useState(5);
   const [step, setStep] = useState(1); // 1: Location, 2: Confirmation
+
+  // Check if user is logged in and is a passenger
+  if (!isSignedIn || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Vui lòng đăng nhập</p>
+          <Link href="/auth/signin">
+            <button className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+              Quay lại đăng nhập
+            </button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if user is a passenger
+  if (user.userType !== "Passenger") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">
+            Bạn không có quyền truy cập trang này
+          </p>
+          <p className="text-gray-500 text-sm mb-6">
+            Trang này chỉ dành cho hành khách
+          </p>
+          <Link href="/">
+            <button className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+              Quay lại trang chủ
+            </button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const handleLocationSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,55 +149,61 @@ export default function BookRidePage() {
                           id: "grabx",
                           name: "GrabX",
                           desc: "Giá tiền tốt",
-                          emoji: "🚗",
+                          image: "/vehicles/bike.png",
                         },
                         {
                           id: "grabcar",
                           name: "GrabCar",
                           desc: "Tiêu chuẩn",
-                          emoji: "🚙",
+                          image: "/vehicles/car4.png",
                         },
                         {
                           id: "grabpremium",
                           name: "GrabPremium",
                           desc: "Xe cao cấp",
-                          emoji: "🚕",
+                          image: "/vehicles/car_electric.png",
                         },
                         {
                           id: "grabfamily",
                           name: "GrabFamily",
                           desc: "7 chỗ",
-                          emoji: "🚐",
+                          image: "/vehicles/car6.png",
                         },
                         {
                           id: "grabbike",
                           name: "GrabBike",
                           desc: "Xe máy",
-                          emoji: "🏍️",
+                          image: "/vehicles/bike_saver.png",
                         },
                         {
                           id: "grabshare",
                           name: "GrabShare",
                           desc: "Chia sẻ chuyến",
-                          emoji: "👥",
+                          image: "/vehicles/car4_saver.png",
                         },
                       ].map((type) => (
                         <div key={type.id} className="relative">
                           <button
                             type="button"
                             onClick={() => setRideType(type.id)}
-                            className={`w-full p-4 rounded-lg border-2 transition ${
+                            className={`w-full p-4 rounded-lg border-2 transition flex flex-col items-center gap-3 ${
                               rideType === type.id
                                 ? "border-green-600 bg-green-50"
                                 : "border-gray-300 hover:border-gray-400 cursor-pointer"
                             }`}
                           >
-                            <div className="text-3xl mb-2">{type.emoji}</div>
-                            <div className="font-semibold text-gray-900">
-                              {type.name}
-                            </div>
-                            <div className="text-xs text-gray-600">
-                              {type.desc}
+                            <img
+                              src={type.image}
+                              alt={type.name}
+                              className="h-12 object-contain"
+                            />
+                            <div>
+                              <div className="font-semibold text-gray-900">
+                                {type.name}
+                              </div>
+                              <div className="text-xs text-gray-600">
+                                {type.desc}
+                              </div>
                             </div>
                           </button>
                         </div>

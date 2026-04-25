@@ -33,13 +33,10 @@ interface Trip {
 }
 
 export default function DriverTripsPage() {
-  const { user } = useAuth();
+  const { user, isSignedIn } = useAuth();
   const [trips, setTrips] = useState<Trip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const [filter, setFilter] = useState<
-    "ALL" | "PENDING" | "COMPLETED" | "CANCELLED"
-  >("ALL");
 
   const fetchTrips = useCallback(async () => {
     try {
@@ -147,10 +144,42 @@ export default function DriverTripsPage() {
     }
   };
 
-  const filteredTrips = trips.filter((trip) => {
-    if (filter === "ALL") return true;
-    return trip.status === filter;
-  });
+  // Check if user is logged in and is a driver
+  if (!isSignedIn || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Vui lòng đăng nhập</p>
+          <Link href="/auth/signin">
+            <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+              Quay lại đăng nhập
+            </button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if user is a driver
+  if (user.userType !== "Driver") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">
+            Bạn không có quyền truy cập trang này
+          </p>
+          <p className="text-gray-500 text-sm mb-6">
+            Trang này chỉ dành cho tài xế
+          </p>
+          <Link href="/">
+            <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+              Quay lại trang chủ
+            </button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -174,57 +203,24 @@ export default function DriverTripsPage() {
           </div>
         )}
 
-        {/* Filter Tabs */}
-        <div className="bg-white rounded-lg shadow-md p-4 mb-8">
-          <div className="flex gap-2 flex-wrap">
-            {(["ALL", "PENDING", "COMPLETED", "CANCELLED"] as const).map(
-              (status) => (
-                <button
-                  key={status}
-                  onClick={() => setFilter(status)}
-                  className={`px-4 py-2 rounded-lg font-medium transition ${
-                    filter === status
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  {status === "ALL"
-                    ? "Tất cả"
-                    : status === "PENDING"
-                      ? "Chờ xác nhận"
-                      : status === "COMPLETED"
-                        ? "Đã hoàn thành"
-                        : "Đã hủy"}
-                </button>
-              ),
-            )}
-          </div>
-          <p className="text-sm text-gray-600 mt-3">
-            Tổng: <span className="font-semibold">{filteredTrips.length}</span>{" "}
-            chuyến
-          </p>
-        </div>
-
         {/* Trips List */}
         {isLoading ? (
           <div className="text-center py-12">
             <p className="text-gray-600">Đang tải chuyến đi...</p>
           </div>
-        ) : filteredTrips.length === 0 ? (
+        ) : trips.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-12 text-center">
             <Navigation className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-600 text-lg font-semibold">
               Chưa có chuyến đi
             </p>
             <p className="text-gray-500 text-sm mt-2">
-              {filter === "ALL"
-                ? "Bạn sẽ nhận được chuyến đi mới tại đây"
-                : `Chưa có chuyến đi ${filter.toLowerCase()}`}
+              Bạn sẽ nhận được chuyến đi mới tại đây
             </p>
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredTrips.map((trip) => (
+            {trips.map((trip) => (
               <div
                 key={trip.tripId}
                 className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition"
