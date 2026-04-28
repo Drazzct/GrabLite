@@ -4,16 +4,189 @@ import { useEffect, useState, useCallback } from "react";
 import { Plus, Car } from "lucide-react";
 import Link from "next/link";
 import Header from "@/components/Header";
+import Pagination from "@/components/Pagination";
 import { useAuth } from "@/context/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
+const defaultFormData = {
+  plateNumber: "",
+  make: "",
+  model: "",
+  color: "",
+  capacity: 5,
+  modeIdsList: "1",
+};
 
 export default function VehiclePage() {
   const { user, isSignedIn } = useAuth();
   const [vehicles, setVehicles] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const driverId = user?.id || 8;
+  const itemsPerPage = 10;
+
+  // State cho Form thêm xe
+  const [formData, setFormData] = useState(defaultFormData);
+
+  const [filters, setFilters] = useState({
+    serviceLevel: "",
+    capacity: "",
+    sortOption: "CAPACITY_DESC",
+    plateNumber: "",
+  });
+
+  // Hàm lấy tổng số vehicle
+  const fetchTotalVehicles = useCallback(() => {
+    const params = new URLSearchParams({
+      driverId: driverId.toString(),
+    });
+
+    if (filters.serviceLevel)
+      params.append("serviceLevel", filters.serviceLevel);
+    if (filters.capacity) params.append("capacity", filters.capacity);
+    if (filters.plateNumber) params.append("plateNumber", filters.plateNumber);
+
+    fetch(`/api/vehicles/count?${params.toString()}`)
+      .then((res) => res.json())
+      .then((data) => {
+        const totalCount = data.total_count || 0;
+        const calculatedPages = Math.ceil(totalCount / itemsPerPage) || 1;
+        setTotalPages(calculatedPages);
+      })
+      .catch((err) => {
+        console.error("Lỗi lấy tổng số vehicle:", err);
+      });
+  }, [
+    driverId,
+    filters.serviceLevel,
+    filters.capacity,
+    filters.plateNumber,
+    itemsPerPage,
+  ]);
+
+  // Hàm lấy dữ liệu từ API
+  // 2. Bọc hàm fetchVehicles bằng useCallback
+  const fetchVehicles = useCallback(() => {
+    setIsLoading(true);
+    const params = new URLSearchParams({
+      driverId: driverId.toString(),
+      sortOption: filters.sortOption,
+      limit: itemsPerPage.toString(),
+      offset: ((currentPage - 1) * itemsPerPage).toString(),
+    });
+
+    if (filters.serviceLevel)
+      params.append("serviceLevel", filters.serviceLevel);
+    if (filters.capacity) params.append("capacity", filters.capacity);
+    if (filters.plateNumber) params.append("plateNumber", filters.plateNumber);
+
+    fetch(`/api/vehicles?${params.toString()}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setVehicles(data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error("Lỗi:", err);
+        setIsLoading(false);
+      });
+  }, [
+    driverId,
+    filters.serviceLevel,
+    filters.capacity,
+    filters.sortOption,
+    filters.plateNumber,
+    currentPage,
+    itemsPerPage,
+  ]);
+
+  useEffect(() => {
+    fetchTotalVehicles();
+    fetchVehicles();
+  }, [fetchVehicles, fetchTotalVehicles]);
+
+  // Hàm xử lý gửi form
+  const handleSubmit = async () => {
+    try {
+      const res = await fetch("/api/vehicles/insert", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          registrantId: driverId,
+          usingDriverId: null,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Thêm xe thành công!");
+        setIsOpen(false);
+        setFormData((prev) => ({
+          ...prev,
+          plateNumber: "",
+          make: "",
+          model: "",
+          color: "",
+        }));
+        fetchTotalVehicles();
+        fetchVehicles();
+      } else {
+        toast.error("Lỗi: " + data.error);
+      }
+    } catch (error) {
+      toast.error("Đã xảy ra lỗi kết nối!");
+    }
+  };
+
+  // Thêm hàm này vào bên trong function VehiclePage()
+  const handleDelete = async (vehicleId: number) => {
+    // Hiển thị hộp thoại xác nhận trước khi xóa
+    if (!confirm("Bạn có chắc chắn muốn xóa phương tiện này không?")) return;
+
+    try {
+      const res = await fetch(`/api/vehicles/delete?vehicleId=${vehicleId}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Đã xóa phương tiện thành công!");
+        fetchTotalVehicles();
+        fetchVehicles();
+      } else {
+        toast.error("Lỗi khi xóa: " + data.error);
+      }
+    } catch (error) {
+      toast.error("Đã xảy ra lỗi kết nối khi xóa!");
+    }
+  };
+
+  const handleSwitch = async (vehicleId: number) => {
+    try {
+      const res = await fetch("/api/vehicles/update", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          vehicleId: vehicleId,
+          driverId: driverId,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Đã thay đổi xe đang sử dụng!");
+        fetchVehicles();
+      } else {
+        toast.error("Lỗi: " + data.error);
+      }
+    } catch (error) {
+      toast.error("Lỗi kết nối khi cập nhật!");
+    }
+  };
 
   // Check if user is logged in and is a driver
   if (!isSignedIn || !user) {
@@ -51,121 +224,6 @@ export default function VehiclePage() {
       </div>
     );
   }
-
-  // State cho Form thêm xe
-  const [formData, setFormData] = useState({
-    plateNumber: "",
-    make: "",
-    model: "",
-    color: "",
-    capacity: 4,
-    modeIdsList: "1", // Mặc định loại xe số 1
-  });
-
-  const [filters, setFilters] = useState({
-    modeType: "", // 'Bike' hoặc 'Car'
-    minCapacity: "",
-    sortOption: "CAPACITY_DESC",
-  });
-
-  // Hàm lấy dữ liệu từ API
-  // 2. Bọc hàm fetchVehicles bằng useCallback
-  const fetchVehicles = useCallback(() => {
-    setIsLoading(true);
-    const params = new URLSearchParams({
-      driverId: driverId.toString(),
-      sortOption: filters.sortOption,
-    });
-
-    if (filters.modeType) params.append("modeType", filters.modeType);
-    if (filters.minCapacity) params.append("minCapacity", filters.minCapacity);
-
-    fetch(`/api/vehicles?${params.toString()}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setVehicles(data);
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.error("Lỗi:", err);
-        setIsLoading(false);
-      });
-  }, [driverId, filters.modeType, filters.minCapacity, filters.sortOption]);
-
-  useEffect(() => {
-    fetchVehicles();
-  }, [fetchVehicles]);
-
-  // Hàm xử lý gửi form
-  const handleSubmit = async () => {
-    try {
-      const res = await fetch("/api/vehicles/insert", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          registrantId: driverId,
-          usingDriverId: null,
-        }),
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        toast.success("Thêm xe thành công!");
-        setIsOpen(false);
-        fetchVehicles();
-      } else {
-        toast.error("Lỗi: " + data.error);
-      }
-    } catch (error) {
-      toast.error("Đã xảy ra lỗi kết nối!");
-    }
-  };
-
-  // Thêm hàm này vào bên trong function VehiclePage()
-  const handleDelete = async (vehicleId: number) => {
-    // Hiển thị hộp thoại xác nhận trước khi xóa
-    if (!confirm("Bạn có chắc chắn muốn xóa phương tiện này không?")) return;
-
-    try {
-      const res = await fetch(`/api/vehicles/delete?vehicleId=${vehicleId}`, {
-        method: "DELETE",
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        toast.success("Đã xóa phương tiện thành công!");
-        fetchVehicles();
-      } else {
-        toast.error("Lỗi khi xóa: " + data.error);
-      }
-    } catch (error) {
-      toast.error("Đã xảy ra lỗi kết nối khi xóa!");
-    }
-  };
-
-  const handleSwitch = async (vehicleId: number) => {
-    try {
-      const res = await fetch("/api/vehicles/update", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          vehicleId: vehicleId,
-          driverId: driverId,
-        }),
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        toast.success("Đã thay đổi xe đang sử dụng!");
-        fetchVehicles();
-      } else {
-        toast.error("Lỗi: " + data.error);
-      }
-    } catch (error) {
-      toast.error("Lỗi kết nối khi cập nhật!");
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-700">
@@ -205,37 +263,56 @@ export default function VehiclePage() {
         {/* Filters section */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Bộ lọc</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Tìm kiếm biển số xe
+              </label>
+              <input
+                type="text"
+                placeholder="VD: 29A-123"
+                className="w-full border border-gray-200 p-2.5 rounded-lg bg-gray-50 hover:bg-gray-100/50 transition-colors outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                value={filters.plateNumber}
+                onChange={(e) =>
+                  setFilters({ ...filters, plateNumber: e.target.value })
+                }
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Loại dịch vụ
+              </label>
+              <select
+                className="w-full border border-gray-200 p-2.5 rounded-lg bg-gray-50 hover:bg-gray-100/50 transition-colors outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                value={filters.serviceLevel}
+                onChange={(e) =>
+                  setFilters({ ...filters, serviceLevel: e.target.value })
+                }
+              >
+                <option value="">Tất cả</option>
+                <option value="Standard">Tiêu chuẩn</option>
+                <option value="Saver">Tiết kiệm</option>
+                <option value="Electric">Xe điện</option>
+              </select>
+            </div>
+
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Loại xe
               </label>
               <select
                 className="w-full border border-gray-200 p-2.5 rounded-lg bg-gray-50 hover:bg-gray-100/50 transition-colors outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
-                value={filters.modeType}
+                value={filters.capacity}
                 onChange={(e) =>
-                  setFilters({ ...filters, modeType: e.target.value })
+                  setFilters({ ...filters, capacity: e.target.value })
                 }
               >
                 <option value="">Tất cả</option>
-                <option value="Bike">Bike</option>
-                <option value="Car">Car</option>
+                <option value="2">Xe máy</option>
+                <option value="5">Xe ô tô 5 chỗ</option>
+                <option value="7">Xe ô tô 7 chỗ</option>
               </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Sức chứa tối thiểu
-              </label>
-              <input
-                type="number"
-                placeholder="VD: 4"
-                className="w-full border border-gray-200 p-2.5 rounded-lg bg-gray-50 hover:bg-gray-100/50 transition-colors outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
-                value={filters.minCapacity}
-                onChange={(e) =>
-                  setFilters({ ...filters, minCapacity: e.target.value })
-                }
-              />
             </div>
 
             <div>
@@ -269,11 +346,14 @@ export default function VehiclePage() {
                   <th className="px-6 py-4 text-left font-semibold text-gray-900">
                     Hãng & Dòng xe
                   </th>
+                  <th className="px-6 py-4 text-left font-semibold text-gray-900">
+                    Màu sắc
+                  </th>
                   <th className="px-6 py-4 text-center font-semibold text-gray-900">
                     Sức chứa
                   </th>
                   <th className="px-6 py-4 text-left font-semibold text-gray-900">
-                    Loại xe
+                    Dịch vụ
                   </th>
                   <th className="px-6 py-4 text-center font-semibold text-gray-900">
                     Trạng thái
@@ -293,6 +373,9 @@ export default function VehiclePage() {
                       <td className="px-6 py-4">
                         <div className="h-5 bg-gray-100 rounded w-32"></div>
                       </td>
+                      <td className="px-6 py-4">
+                        <div className="h-5 bg-gray-100 rounded w-20"></div>
+                      </td>
                       <td className="px-6 py-4 text-center">
                         <div className="h-5 bg-gray-100 rounded w-12 mx-auto"></div>
                       </td>
@@ -309,7 +392,7 @@ export default function VehiclePage() {
                   ))
                 ) : vehicles.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center">
+                    <td colSpan={7} className="px-6 py-12 text-center">
                       <div className="flex flex-col items-center justify-center space-y-3">
                         <Car className="w-16 h-16 text-gray-300" />
                         <p className="text-gray-600 font-semibold">
@@ -333,12 +416,15 @@ export default function VehiclePage() {
                       <td className="px-6 py-4 text-gray-900 font-medium">
                         {v.MAKE} - {v.MODEL}
                       </td>
+                      <td className="px-6 py-4 text-gray-700">{v.COLOR}</td>
                       <td className="px-6 py-4 text-center">
                         <span className="inline-flex items-center justify-center bg-gray-100 text-gray-700 rounded px-3 py-1 text-sm font-medium">
                           {v.CAPACITY} chỗ
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-gray-700">{v.MODE}</td>
+                      <td className="px-6 py-4 text-gray-700">
+                        {v.SERVICE_TYPE}
+                      </td>
                       <td className="px-6 py-4 text-center">
                         <span
                           className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase ${
@@ -380,6 +466,16 @@ export default function VehiclePage() {
             </table>
           </div>
         </div>
+
+        {/* Pagination */}
+        {vehicles.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            isLoading={isLoading}
+          />
+        )}
       </div>
 
       {/* Add Vehicle Modal */}
@@ -458,40 +554,6 @@ export default function VehiclePage() {
                   />
                 </div>
               </div>
-
-              {/* <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Sức chứa
-                  </label>
-                  <input
-                    type="number"
-                    className="w-full border border-gray-200 p-2.5 rounded-lg bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition"
-                    defaultValue={4}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        capacity: Number(e.target.value),
-                      })
-                    }
-                  />
-                </div>
-              </div> */}
-
-              {/* <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  ID Loại xe (Phân cách bằng dấu phẩy)
-                </label>
-                <input
-                  type="text"
-                  className="w-full border border-gray-200 p-2.5 rounded-lg bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition"
-                  placeholder="1, 2"
-                  onChange={(e) =>
-                    setFormData({ ...formData, modeIdsList: e.target.value })
-                  }
-                />
-              </div> */}
-
               {/* Chọn loại xe - thay thế cả "Sức chứa" lẫn "ID Loại xe" */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -502,7 +564,7 @@ export default function VehiclePage() {
                     {
                       id: "1",
                       label: "Xe máy",
-                      sub: "Standard",
+                      sub: "Tiêu chuẩn",
                       image: "/vehicles/bike.png",
                       capacity: 1,
                     },
@@ -516,7 +578,7 @@ export default function VehiclePage() {
                     {
                       id: "3",
                       label: "Xe hơi 4 chỗ",
-                      sub: "Standard",
+                      sub: "Tiêu chuẩn",
                       image: "/vehicles/car4.png",
                       capacity: 4,
                     },
@@ -530,14 +592,14 @@ export default function VehiclePage() {
                     {
                       id: "5",
                       label: "Xe hơi 4 chỗ",
-                      sub: "Electric",
+                      sub: "Xe điện",
                       image: "/vehicles/car_electric.png",
                       capacity: 4,
                     },
                     {
                       id: "6",
                       label: "Xe hơi 6 chỗ",
-                      sub: "Standard",
+                      sub: "Tiêu chuẩn",
                       image: "/vehicles/car6.png",
                       capacity: 6,
                     },
@@ -558,12 +620,12 @@ export default function VehiclePage() {
 
                       // Tính capacity cao nhất trong các mode đã chọn
                       const allModes = [
-                        { id: "1", capacity: 1 },
-                        { id: "2", capacity: 1 },
-                        { id: "3", capacity: 4 },
-                        { id: "4", capacity: 4 },
-                        { id: "5", capacity: 4 },
-                        { id: "6", capacity: 6 },
+                        { id: "1", capacity: 2 },
+                        { id: "2", capacity: 2 },
+                        { id: "3", capacity: 5 },
+                        { id: "4", capacity: 5 },
+                        { id: "5", capacity: 5 },
+                        { id: "6", capacity: 7 },
                       ];
                       const maxCapacity =
                         updated.length > 0

@@ -11,6 +11,10 @@ import {
   Navigation,
   Car,
   User,
+  Zap,
+  Wallet,
+  Gift,
+  Coins,
 } from "lucide-react";
 import Header from "@/components/Header";
 import { useAuth } from "@/context/AuthContext";
@@ -210,28 +214,138 @@ export default function PassengerTripsPage() {
               ))}
             </div>
           ) : reportData.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {reportData.map((item: any) => (
                 <div
-                  key={item.Month}
-                  className="bg-white rounded-lg shadow-md p-6 border-l-4 border-l-green-600 hover:shadow-lg transition-all group cursor-pointer"
+                  key={item.Reporting_Month}
+                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all group border border-gray-200"
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-900 group-hover:text-green-700 transition-colors">
-                        {item.Month}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        Chuyến đi đã hoàn thành
+                  {/* Header */}
+                  <div className="bg-linear-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-gray-200">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900 group-hover:text-green-700 transition-colors">
+                          {item.Reporting_Month}
+                        </h3>
+                        <p className="text-sm text-gray-600 mt-1">
+                          Báo cáo chuyến đi
+                        </p>
+                      </div>
+                      <Calendar className="w-5 h-5 text-green-600 opacity-60" />
+                    </div>
+                  </div>
+
+                  {/* Main Stats */}
+                  <div className="px-6 py-4">
+                    {/* Total Trips */}
+                    <div className="mb-4 pb-4 border-b border-gray-200">
+                      <div className="flex items-baseline gap-2 mb-1">
+                        <span className="text-3xl font-bold text-green-700">
+                          {item.Total_Trips}
+                        </span>
+                        <span className="text-gray-600 font-medium">
+                          chuyến
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        Tổng chuyến đi hoàn thành
                       </p>
                     </div>
-                    <Calendar className="w-5 h-5 text-green-600 opacity-60" />
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-bold text-green-700">
-                      {item.Total_Completed_Trips}
-                    </span>
-                    <span className="text-gray-600 font-medium">chuyến</span>
+
+                    {/* Service Breakdown */}
+                    <div className="mb-4 pb-4 border-b border-gray-200">
+                      <p className="text-xs font-semibold text-gray-700 uppercase mb-2">
+                        Phân loại dịch vụ
+                      </p>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            <Zap className="w-4 h-4 text-amber-500" />
+                            <span className="text-sm text-gray-600">
+                              Xe điện
+                            </span>
+                          </div>
+                          <span className="font-medium text-gray-900">
+                            {item.Electric_Rides || 0}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            <Wallet className="w-4 h-4 text-green-600" />
+                            <span className="text-sm text-gray-600">
+                              Tiết kiệm
+                            </span>
+                          </div>
+                          <span className="font-medium text-gray-900">
+                            {item.Saver_Rides || 0}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Financial Analysis */}
+                    <div className="mb-4 pb-4 border-b border-gray-200">
+                      <p className="text-xs font-semibold text-gray-700 uppercase mb-2">
+                        Phân tích tài chính
+                      </p>
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-600">
+                            Giá ước tính
+                          </span>
+                          <span className="font-medium text-gray-900">
+                            {item.Gross_Estimate?.toLocaleString()}₫
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-600">
+                            Thực trả
+                          </span>
+                          <span className="font-medium text-green-700">
+                            {item.Actual_Spent?.toLocaleString()}₫
+                          </span>
+                        </div>
+                        <div className="flex justify-between bg-green-50 px-2 py-1 rounded">
+                          <span className="text-sm text-green-700 font-medium">
+                            Tiết kiệm
+                          </span>
+                          <span className="font-bold text-green-700">
+                            +{item.Total_Saved?.toLocaleString()}₫
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Loyalty Rewards */}
+                    <div>
+                      <p className="text-xs font-semibold text-gray-700 uppercase mb-2">
+                        Phần thưởng
+                      </p>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            <Coins className="w-4 h-4 text-amber-500" />
+                            <span className="text-sm text-gray-600">
+                              Xu GrabCoin
+                            </span>
+                          </div>
+                          <span className="font-medium text-amber-600">
+                            {item.Standard_Coins_Earned || 0}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            <Gift className="w-4 h-4 text-red-500" />
+                            <span className="text-sm text-gray-600">
+                              Bonus thân thiết
+                            </span>
+                          </div>
+                          <span className="font-medium text-amber-600">
+                            {item.Loyalty_Bonus_Earned || 0}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -309,7 +423,7 @@ export default function PassengerTripsPage() {
                       <div className="text-3xl font-bold text-gray-900">
                         {trip.finalPrice.toLocaleString()} đ
                       </div>
-                      <p className="text-gray-600 text-xs mt-1">Cộng</p>
+                      <p className="text-gray-600 text-xs mt-1">Tổng cộng</p>
                     </div>
                   </div>
 
@@ -363,7 +477,7 @@ export default function PassengerTripsPage() {
                     </div>
 
                     {/* Trip Info Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-gray-400">
                       <div className="flex items-center gap-3">
                         <User className="w-5 h-5 text-gray-400" />
                         <div>
@@ -407,7 +521,7 @@ export default function PassengerTripsPage() {
                     {/* Ratings */}
                     {trip.ratingStars !== undefined &&
                       trip.status === "COMPLETED" && (
-                        <div className="pt-4 border-t">
+                        <div className="pt-4 border-t border-gray-400">
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-sm font-semibold text-gray-900">
                               Đánh giá tài xế

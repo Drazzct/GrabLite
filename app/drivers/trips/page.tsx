@@ -8,7 +8,6 @@ import {
   MapPin,
   Clock,
   Star,
-  Phone,
   AlertCircle,
   Navigation,
   Users,
@@ -249,7 +248,7 @@ export default function DriverTripsPage() {
                     <div className="text-3xl font-bold text-gray-900">
                       {trip.finalPrice.toLocaleString()} đ
                     </div>
-                    <p className="text-gray-600 text-xs mt-1">Cộng</p>
+                    <p className="text-gray-600 text-xs mt-1">Tổng cộng</p>
                   </div>
                 </div>
 
@@ -303,7 +302,7 @@ export default function DriverTripsPage() {
                   </div>
 
                   {/* Trip Info Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-gray-400">
                     <div className="flex items-center gap-3">
                       <Users className="w-5 h-5 text-gray-400" />
                       <div>
@@ -347,7 +346,7 @@ export default function DriverTripsPage() {
                   {/* Ratings */}
                   {trip.ratingStars !== undefined &&
                     trip.status === "COMPLETED" && (
-                      <div className="pt-4 border-t">
+                      <div className="pt-4 border-t border-gray-400">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-sm font-semibold text-gray-900">
                             Đánh giá
