@@ -75,6 +75,8 @@ export default function AddVehicleModal({
   formData,
   onFormChange,
 }: AddVehicleModalProps) {
+  const [showErrors, setShowErrors] = React.useState(false);
+
   if (!isOpen) return null;
 
   const selectedModeIds = formData.modeIdsList
@@ -85,7 +87,10 @@ export default function AddVehicleModal({
   // Check if any bike mode is selected (modes 1, 2)
   const isBikeSelected = selectedModeIds.some((id) => ["1", "2"].includes(id));
   // Check if any car mode is selected (modes 3, 4, 5, 6)
-  const isCarSelected = selectedModeIds.some((id) => ["3", "4", "5", "6"].includes(id));
+  const isCar4Selected = selectedModeIds.some((id) =>
+    ["3", "4", "5"].includes(id),
+  );
+  const isCar6Selected = selectedModeIds.some((id) => ["6"].includes(id));
 
   const toggleMode = (modeId: string) => {
     const current = formData.modeIdsList
@@ -125,101 +130,132 @@ export default function AddVehicleModal({
 
   const isModeDisabled = (modeId: string) => {
     const isBike = ["1", "2"].includes(modeId);
-    const isCar = ["3", "4", "5", "6"].includes(modeId);
+    const isCar4 = ["3", "4", "5"].includes(modeId);
+    const isCar6 = modeId === "6";
 
-    // Nếu là chế độ xe máy và đã chọn xe hơi
-    if (isBike && isCarSelected) return true;
-    // Nếu là chế độ xe hơi và đã chọn xe máy
-    if (isCar && isBikeSelected) return true;
+    if (
+      !(
+        (isBike && isBikeSelected) ||
+        (isCar4 && isCar4Selected) ||
+        (isCar6 && isCar6Selected) ||
+        selectedModeIds.length === 0
+      )
+    )
+      return true;
 
     return false;
   };
 
+  const handleSubmit = () => {
+    setShowErrors(true);
+    if (isFormValid) {
+      onSubmit();
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-lg animate-in fade-in slide-in-from-bottom-4 duration-300">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-300">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
           <h2 className="text-lg font-bold text-gray-900">Đăng ký xe mới</h2>
           <button
-            onClick={onClose}
+            onClick={() => {
+              onClose();
+              setShowErrors(false);
+            }}
             className="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center text-2xl transition"
           >
             ✕
           </button>
         </div>
 
-        <div className="px-6 py-4 space-y-6 max-h-[70vh] overflow-y-auto">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Biển số (VD: 29A-123.45)
-              </label>
-              <input
-                type="text"
-                className="w-full border border-gray-200 px-4 py-2.5 rounded-lg bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition"
-                placeholder="29A-123.45"
-                value={formData.plateNumber}
-                onChange={(e) => onFormChange("plateNumber", e.target.value)}
-              />
-              {isPlateNumberEmpty && (
-                <p className="text-xs text-red-600 mt-1">Biển số không được trống</p>
-              )}
+        <div className="px-6 py-6 space-y-6 max-h-[70vh] overflow-y-auto">
+          {/* Section 1: Thông tin cơ bản */}
+          <div className="border border-gray-200 rounded-lg p-4">
+            <h3 className="font-semibold text-gray-900 mb-4">
+              Thông tin cơ bản
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Biển số (VD: 29A-123.45)
+                </label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-200 px-4 py-2.5 rounded-lg bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition"
+                  placeholder="29A-123.45"
+                  value={formData.plateNumber}
+                  onChange={(e) => onFormChange("plateNumber", e.target.value)}
+                />
+                {showErrors && isPlateNumberEmpty && (
+                  <p className="text-xs text-red-600 mt-1">
+                    Biển số không được trống
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Màu sắc
+                </label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-200 px-4 py-2.5 rounded-lg bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition"
+                  placeholder="Trắng"
+                  value={formData.color}
+                  onChange={(e) => onFormChange("color", e.target.value)}
+                />
+                {showErrors && isColorEmpty && (
+                  <p className="text-xs text-red-600 mt-1">
+                    Màu sắc không được trống
+                  </p>
+                )}
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Màu sắc
-              </label>
-              <input
-                type="text"
-                className="w-full border border-gray-200 p-2.5 rounded-lg bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition"
-                placeholder="Trắng"
-                value={formData.color}
-                onChange={(e) => onFormChange("color", e.target.value)}
-              />
-              {isColorEmpty && (
-                <p className="text-xs text-red-600 mt-1">Màu sắc không được trống</p>
-              )}
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Hãng xe
+                </label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-200 px-4 py-2.5 rounded-lg bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition"
+                  placeholder="Toyota"
+                  value={formData.make}
+                  onChange={(e) => onFormChange("make", e.target.value)}
+                />
+                {showErrors && isMakeEmpty && (
+                  <p className="text-xs text-red-600 mt-1">
+                    Hãng xe không được trống
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Dòng xe
+                </label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-200 px-4 py-2.5 rounded-lg bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition"
+                  placeholder="Camry"
+                  value={formData.model}
+                  onChange={(e) => onFormChange("model", e.target.value)}
+                />
+                {showErrors && isModelEmpty && (
+                  <p className="text-xs text-red-600 mt-1">
+                    Dòng xe không được trống
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Hãng xe
-              </label>
-              <input
-                type="text"
-                className="w-full border border-gray-200 px-4 py-2.5 rounded-lg bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition"
-                placeholder="Toyota"
-                value={formData.make}
-                onChange={(e) => onFormChange("make", e.target.value)}
-              />
-              {isMakeEmpty && (
-                <p className="text-xs text-red-600 mt-1">Hãng xe không được trống</p>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Dòng xe
-              </label>
-              <input
-                type="text"
-                className="w-full border border-gray-200 px-4 py-2.5 rounded-lg bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition"
-                placeholder="Camry"
-                value={formData.model}
-                onChange={(e) => onFormChange("model", e.target.value)}
-              />
-              {isModelEmpty && (
-                <p className="text-xs text-red-600 mt-1">Dòng xe không được trống</p>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+          {/* Section 2: Loại xe & Dịch vụ */}
+          <div className="border border-gray-200 rounded-lg p-4">
+            <h3 className="font-semibold text-gray-900 mb-4">
               Loại xe & Dịch vụ
-            </label>
+            </h3>
             <div className="grid grid-cols-2 gap-2">
               {MODES.map((mode) => {
                 const selected = selectedModeIds.includes(mode.id);
@@ -258,7 +294,7 @@ export default function AddVehicleModal({
                 );
               })}
             </div>
-            {isNoModeSelected && (
+            {showErrors && isNoModeSelected && (
               <p className="text-xs text-red-600 mt-2">
                 Vui lòng chọn ít nhất một loại dịch vụ
               </p>
@@ -268,14 +304,16 @@ export default function AddVehicleModal({
 
         <div className="flex justify-end gap-3 p-5 border-t border-gray-200">
           <button
-            onClick={onClose}
+            onClick={() => {
+              onClose();
+              setShowErrors(false);
+            }}
             className="px-5 py-2.5 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors focus:outline-none"
           >
             Hủy bỏ
           </button>
           <button
-            onClick={onSubmit}
-            disabled={!isFormValid}
+            onClick={handleSubmit}
             className="px-5 py-2.5 bg-blue-600 text-white hover:bg-blue-700 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none"
           >
             Xác nhận thêm

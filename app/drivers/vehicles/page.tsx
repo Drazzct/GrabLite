@@ -19,7 +19,7 @@ const defaultFormData = {
   model: "",
   color: "",
   capacity: 5,
-  modeIdsList: "1",
+  modeIdsList: "",
 };
 
 interface Vehicle {

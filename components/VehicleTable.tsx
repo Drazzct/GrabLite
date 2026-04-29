@@ -1,5 +1,5 @@
 import React from "react";
-import { Car } from "lucide-react";
+import { Car, Edit, Trash2, Power } from "lucide-react";
 
 interface Vehicle {
   VEHICLE_ID: number;
@@ -114,42 +114,42 @@ export default function VehicleTable({
                   </td>
                   <td className="px-6 py-4 text-gray-700">{v.SERVICE_TYPE}</td>
                   <td className="px-6 py-4 text-center">
-                    <span
-                      className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase ${
+                    <button
+                      onClick={() => onSwitch(v.VEHICLE_ID)}
+                      className={`inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition ${
                         v.CURRENT_STATUS === "ACTIVE"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-100 text-gray-600"
+                          ? "bg-green-100 text-green-700 hover:bg-green-200"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                       }`}
+                      title={
+                        v.CURRENT_STATUS === "ACTIVE"
+                          ? "Đang sử dụng - Bấm để dừng"
+                          : "Không sử dụng - Bấm để sử dụng"
+                      }
                     >
-                      {v.CURRENT_STATUS === "ACTIVE"
-                        ? "Hoạt động"
-                        : "Không hoạt động"}
-                    </span>
+                      <Power className="w-4 h-4" />
+                      <span className="text-sm">
+                        {v.CURRENT_STATUS === "ACTIVE"
+                          ? "Đang dùng"
+                          : "Không dùng"}
+                      </span>
+                    </button>
                   </td>
                   <td className="px-6 py-4 text-center">
                     <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => onEdit(v)}
-                        className="px-3 py-1 text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded text-sm font-medium transition"
+                        className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition"
+                        title="Sửa thông tin xe"
                       >
-                        Sửa
-                      </button>
-                      <button
-                        onClick={() => onSwitch(v.VEHICLE_ID)}
-                        disabled={v.CURRENT_STATUS === "ACTIVE"}
-                        className={`px-3 py-1 rounded text-sm font-medium transition ${
-                          v.CURRENT_STATUS === "ACTIVE"
-                            ? "text-gray-300 cursor-default"
-                            : "text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                        }`}
-                      >
-                        Sử dụng
+                        <Edit className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => onDelete(v.VEHICLE_ID)}
-                        className="px-3 py-1 text-red-600 hover:text-red-700 hover:bg-red-50 rounded text-sm font-medium transition"
+                        className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition"
+                        title="Xóa xe"
                       >
-                        Xóa
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </td>
