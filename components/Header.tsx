@@ -25,9 +25,11 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4 flex justify-between items-center">
         <Link href="/" className="flex items-center space-x-2">
           <div className="w-10 h-10 rounded-full flex items-center justify-center">
-            <img src="/logo.svg" alt="GrabLite Logo" className="w-6 h-6" />
+            <img src="/logo.svg" alt="GrabK Logo" className="w-6 h-6" />
           </div>
-          <span className="font-bold text-xl text-gray-900">GrabLite</span>
+          <span className="font-bold text-xl text-gray-900">
+            Gra<span className="text-green-600">bK</span>
+          </span>
         </Link>
 
         <button

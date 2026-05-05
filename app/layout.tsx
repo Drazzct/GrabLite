@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GrabLite",
-  description: "Grab but in nutshell",
+  title: "GrabK",
+  description: "Grab but at HCMUT",
 };
 
 export default function RootLayout({

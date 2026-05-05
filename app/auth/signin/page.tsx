@@ -64,10 +64,12 @@ export default function SignInPage() {
               href="/"
               className="w-14 h-14 bg-white rounded-full flex items-center justify-center"
             >
-              <img src="/logo.svg" alt="GrabLite Logo" className="w-8 h-8" />
+              <img src="/logo.svg" alt="GrabK Logo" className="w-8 h-8" />
             </Link>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">GrabLite</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Gra<span className="text-green-600">bK</span>
+          </h1>
           <p className="text-gray-600 mt-2">Đăng nhập vào tài khoản của bạn</p>
         </div>
 

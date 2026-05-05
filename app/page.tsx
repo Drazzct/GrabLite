@@ -46,7 +46,7 @@ export default function LandingPage() {
       <section className="py-20 px-4 sm:px-8 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-16">
-            Tại sao chọn GrabLite?
+            Tại sao chọn Gra<span className="text-green-600">bK</span>?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition text-center flex flex-col items-center">
@@ -166,19 +166,19 @@ export default function LandingPage() {
       <section className="py-20 px-4 sm:px-8 bg-green-600 text-white">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
           <div>
-            <div className="text-4xl font-bold mb-2">500+</div>
+            <div className="text-4xl font-bold mb-2">X+</div>
             <p className="text-green-100">Tài xế đang hoạt động</p>
           </div>
           <div>
-            <div className="text-4xl font-bold mb-2">10K+</div>
+            <div className="text-4xl font-bold mb-2">Y+</div>
             <p className="text-green-100">Hành khách hài lòng</p>
           </div>
           <div>
-            <div className="text-4xl font-bold mb-2">50K+</div>
+            <div className="text-4xl font-bold mb-2">Z+</div>
             <p className="text-green-100">Chuyến đi hoàn thành</p>
           </div>
           <div>
-            <div className="text-4xl font-bold mb-2">4.8/5</div>
+            <div className="text-4xl font-bold mb-2">T/5</div>
             <p className="text-green-100">Đánh giá trung bình</p>
           </div>
         </div>
@@ -212,7 +212,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
-              <h3 className="text-white font-bold mb-4">GrabLite</h3>
+              <h3 className="text-white font-bold mb-4">GrabK</h3>
               <p className="text-sm">
                 Đối tác chia sẻ chuyến đi đáng tin cậy của bạn
               </p>
@@ -268,7 +268,7 @@ export default function LandingPage() {
           </div>
 
           <div className="border-t border-gray-700 pt-8 text-center text-sm">
-            <p>&copy; 2026 GrabLite. All rights reserved.</p>
+            <p>&copy; 2026 GrabK. All rights reserved.</p>
           </div>
         </div>
       </footer>
