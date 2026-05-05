@@ -236,10 +236,10 @@ export default function EditVehicleModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-300">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-bold text-gray-900">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center z-50 sm:p-4">
+      <div className="bg-white w-full sm:max-w-2xl sm:rounded-lg rounded-t-2xl shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+          <h2 className="text-base sm:text-lg font-bold text-gray-900 truncate pr-4">
             Sửa thông tin xe: {vehicle.PLATE_NUMBER}
           </h2>
           <button
@@ -247,17 +247,17 @@ export default function EditVehicleModal({
               onClose();
               setShowErrors(false);
             }}
-            className="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center text-2xl transition"
+            className="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center text-2xl transition shrink-0"
           >
             ✕
           </button>
         </div>
 
-        <div className="px-6 py-6 space-y-6 max-h-[70vh] overflow-y-auto">
+        <div className="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 max-h-[75vh] sm:max-h-[70vh] overflow-y-auto">
           {/* Thông tin xe (read-only) */}
           <div className="bg-gray-50 rounded-lg p-4">
             <h3 className="font-semibold text-gray-900 mb-4">Thông tin xe</h3>
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
               <div>
                 <p className="text-gray-500">Hãng & dòng xe</p>
                 <p className="font-medium text-gray-900">
@@ -372,7 +372,7 @@ export default function EditVehicleModal({
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 p-5 border-t border-gray-200">
+        <div className="flex justify-end gap-3 p-4 sm:p-5 border-t border-gray-200">
           <button
             onClick={() => {
               onClose();

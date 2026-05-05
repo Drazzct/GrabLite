@@ -144,10 +144,12 @@ export default function AddVehicleModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-300">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-bold text-gray-900">Đăng ký xe mới</h2>
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center z-50 sm:p-4">
+      <div className="bg-white w-full sm:max-w-2xl sm:rounded-lg rounded-t-2xl shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+          <h2 className="text-base sm:text-lg font-bold text-gray-900">
+            Đăng ký xe mới
+          </h2>
           <button
             onClick={() => {
               onClose();
@@ -159,13 +161,13 @@ export default function AddVehicleModal({
           </button>
         </div>
 
-        <div className="px-6 py-6 space-y-6 max-h-[70vh] overflow-y-auto">
+        <div className="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 max-h-[75vh] sm:max-h-[70vh] overflow-y-auto">
           {/* Section 1: Thông tin cơ bản */}
           <div className="border border-gray-200 rounded-lg p-4">
             <h3 className="font-semibold text-gray-900 mb-4">
               Thông tin cơ bản
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Biển số (VD: 29A-123.45)
@@ -203,7 +205,7 @@ export default function AddVehicleModal({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Hãng xe
@@ -292,7 +294,7 @@ export default function AddVehicleModal({
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 p-5 border-t border-gray-200">
+        <div className="flex justify-end gap-3 p-4 sm:p-5 border-t border-gray-200">
           <button
             onClick={() => {
               onClose();

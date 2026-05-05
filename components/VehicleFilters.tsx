@@ -21,9 +21,9 @@ export default function VehicleFilters({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">Bộ lọc</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-[3fr_2fr_2fr_2fr] gap-4">
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">
             Tìm kiếm biển số xe

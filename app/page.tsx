@@ -26,13 +26,13 @@ export default function LandingPage() {
           {!isSignedIn && (
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
               <Link
-                href="/"
+                href="/auth/signin"
                 className="bg-white text-green-600 px-8 py-3 rounded-lg font-bold hover:bg-gray-100 transition"
               >
                 Đặt chuyến xe
               </Link>
               <Link
-                href="/"
+                href="/auth/signup"
                 className="bg-green-800 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-900 transition border-2 border-white"
               >
                 Trở thành tài xế
@@ -192,12 +192,15 @@ export default function LandingPage() {
           </p>
           <div className="flex justify-center gap-4">
             <Link
-              href="/passengers"
+              href="/auth/signin"
               className="bg-green-600 px-6 py-3 rounded-lg"
             >
               Đặt xe
             </Link>
-            <Link href="/drivers" className="bg-green-600 px-6 py-3 rounded-lg">
+            <Link
+              href="/auth/signup"
+              className="bg-green-600 px-6 py-3 rounded-lg"
+            >
               Đăng ký tài xế
             </Link>
           </div>
