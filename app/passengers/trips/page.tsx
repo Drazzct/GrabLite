@@ -286,6 +286,19 @@ export default function PassengerTripsPage() {
                               {item.Saver_Rides || 0}
                             </span>
                           </div>
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                              <Car className="w-4 h-4 text-blue-600" />
+                              <span className="text-sm text-gray-600">
+                                Tiêu chuẩn
+                              </span>
+                            </div>
+                            <span className="font-medium text-gray-900">
+                              {(item.Total_Trips || 0) -
+                                (item.Electric_Rides || 0) -
+                                (item.Saver_Rides || 0)}
+                            </span>
+                          </div>
                         </div>
                       </div>
 
@@ -305,7 +318,7 @@ export default function PassengerTripsPage() {
                           </div>
                           <div className="flex justify-between">
                             <span className="text-sm text-gray-600">
-                              Thực trả
+                              Đã trả
                             </span>
                             <span className="font-medium text-green-700">
                               {item.Actual_Spent?.toLocaleString()}₫
