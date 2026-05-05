@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 interface ModeData {
@@ -73,6 +73,15 @@ const MODES: ModeData[] = [
   },
 ];
 
+const MODE_GROUPS: Record<string, number> = {
+  "1": 1,
+  "2": 1,
+  "3": 2,
+  "4": 2,
+  "5": 3,
+  "6": 4,
+};
+
 export default function EditVehicleModal({
   isOpen,
   vehicle,
@@ -84,15 +93,14 @@ export default function EditVehicleModal({
   const [color, setColor] = useState("");
   const [selectedModes, setSelectedModes] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showErrors, setShowErrors] = React.useState(false);
+  const [showErrors, setShowErrors] = useState(false);
   const [isTogglingMode, setIsTogglingMode] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (vehicle) {
       setPlateNumber(vehicle.PLATE_NUMBER);
       setColor(vehicle.COLOR);
 
-      // Fetch MODE_IDs from database
       fetch(`/api/vehicles/modes?vehicleId=${vehicle.VEHICLE_ID}`)
         .then((res) => res.json())
         .then((data) => {
@@ -100,22 +108,32 @@ export default function EditVehicleModal({
         })
         .catch((err) => {
           console.error("Error fetching modes:", err);
-          setSelectedModes(["1"]); // Default fallback
+          setSelectedModes(["1"]);
         });
     }
   }, [vehicle]);
 
   if (!isOpen || !vehicle) return null;
 
+  const selectedGroups = new Set(selectedModes.map((id) => MODE_GROUPS[id]));
+
+  const isModeEnabled = (modeId: string) => {
+    // Only show modes belonging to the same group(s) as currently selected modes
+    // If nothing selected yet, fall back to capacity check
+    if (selectedModes.length === 0) {
+      return MODES[Number(modeId) - 1].capacity === vehicle.CAPACITY;
+    }
+    return selectedGroups.has(MODE_GROUPS[modeId]);
+  };
+
   const toggleMode = async (modeId: string) => {
-    if (isTogglingMode) return; // Prevent multiple requests
+    if (isTogglingMode) return;
 
     const isSelected = selectedModes.includes(modeId);
     setIsTogglingMode(true);
 
     try {
       if (isSelected) {
-        // Remove mode
         const res = await fetch(
           `/api/vehicles/remove-mode?vehicleId=${vehicle.VEHICLE_ID}&modeId=${modeId}`,
           { method: "DELETE" },
@@ -129,7 +147,6 @@ export default function EditVehicleModal({
           toast.error("Lỗi: " + data.error);
         }
       } else {
-        // Add mode
         const res = await fetch("/api/vehicles/add-mode", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -152,17 +169,6 @@ export default function EditVehicleModal({
     } finally {
       setIsTogglingMode(false);
     }
-  };
-
-  // Check if any bike mode is selected (modes 1, 2)
-  const isBikeSelected = selectedModes.some((id) => ["1", "2"].includes(id));
-  // Check if any car mode is selected (modes 3, 4, 5, 6)
-  const isCarSelected = selectedModes.some((id) =>
-    ["3", "4", "5", "6"].includes(id),
-  );
-
-  const isModeEnabled = (modeId: string) => {
-    return MODES[Number(modeId) - 1].capacity === vehicle.CAPACITY;
   };
 
   const handleUpdatePlate = async () => {

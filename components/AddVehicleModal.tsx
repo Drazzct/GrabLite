@@ -68,6 +68,15 @@ const MODES: ModeData[] = [
   },
 ];
 
+const MODE_GROUPS: Record<string, number> = {
+  "1": 1,
+  "2": 1,
+  "3": 2,
+  "4": 2,
+  "5": 3,
+  "6": 4,
+};
+
 export default function AddVehicleModal({
   isOpen,
   onClose,
@@ -84,13 +93,7 @@ export default function AddVehicleModal({
     .map((s) => s.trim())
     .filter(Boolean);
 
-  // Check if any bike mode is selected (modes 1, 2)
-  const isBikeSelected = selectedModeIds.some((id) => ["1", "2"].includes(id));
-  // Check if any car mode is selected (modes 3, 4, 5, 6)
-  const isCar4Selected = selectedModeIds.some((id) =>
-    ["3", "4", "5"].includes(id),
-  );
-  const isCar6Selected = selectedModeIds.some((id) => ["6"].includes(id));
+  const selectedGroups = new Set(selectedModeIds.map((id) => MODE_GROUPS[id]));
 
   const toggleMode = (modeId: string) => {
     const current = formData.modeIdsList
@@ -129,21 +132,8 @@ export default function AddVehicleModal({
     !isNoModeSelected;
 
   const isModeDisabled = (modeId: string) => {
-    const isBike = ["1", "2"].includes(modeId);
-    const isCar4 = ["3", "4", "5"].includes(modeId);
-    const isCar6 = modeId === "6";
-
-    if (
-      !(
-        (isBike && isBikeSelected) ||
-        (isCar4 && isCar4Selected) ||
-        (isCar6 && isCar6Selected) ||
-        selectedModeIds.length === 0
-      )
-    )
-      return true;
-
-    return false;
+    if (selectedModeIds.length === 0) return false;
+    return !selectedGroups.has(MODE_GROUPS[modeId]);
   };
 
   const handleSubmit = () => {

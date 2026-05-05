@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Briefcase, Car } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -10,6 +10,7 @@ export default function SignUpPage() {
   const router = useRouter();
   const { signIn } = useAuth();
   const [userType, setUserType] = useState<"passenger" | "driver">("passenger");
+  const [redirectPath, setRedirectPath] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -22,6 +23,13 @@ export default function SignUpPage() {
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Redirect after AuthContext is updated
+  useEffect(() => {
+    if (redirectPath) {
+      router.push(redirectPath);
+    }
+  }, [redirectPath, router]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -105,11 +113,11 @@ export default function SignUpPage() {
       // Update AuthContext with user data
       signIn(data.user);
 
-      // Redirect based on user type
+      // Set redirect path to trigger useEffect
       if (userType === "driver") {
-        router.push("/drivers/vehicles");
+        setRedirectPath("/drivers/vehicles");
       } else {
-        router.push("/passengers/trips");
+        setRedirectPath("/passengers/trips");
       }
     } catch (err) {
       setError("Không thể tạo tài khoản. Vui lòng thử lại.");

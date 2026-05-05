@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
           [accountId],
         );
 
-        const user = userInfo[0];
+        const user = userInfo[0][0];
 
         return NextResponse.json({
           success: true,
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
             avatar: user.AVATAR,
             userType: user.USER_TYPE,
             averageRating: user.AVERAGE_RATING || null,
-            grabcoins: user.GRABCOINS || 0,
+            grabCoins: user.GRABCOINS || 0,
           },
         });
       } else {
@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
           [accountId],
         );
 
-        const user = userInfo[0];
+        const user = userInfo[0][0];
 
         return NextResponse.json({
           success: true,
